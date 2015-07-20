@@ -6,6 +6,9 @@
 
 #include "msp.h"
 
+// EUSCI_A0 - UART for console
+// EUSCI_A1 - SPI for talking to CC1101
+
 void main(void)
 {
     volatile uint32_t i;
@@ -18,10 +21,6 @@ void main(void)
     // PxSEL.y
     PMAP->rP3MAP45 = (PMAP->rP3MAP45 & 0xFF) | (PM_UCA0TXD << 8); // Ugly. Should use an array of bytes instead.
     DIO->rPBSEL0.b.bP3SEL0 = BIT5;
-
-    // The following code toggles P1.0 port
-    DIO->rPADIR.b.bP1DIR |= BIT0;       // Configure P1.0 as output
-    DIO->rPBDIR.b.bP3DIR |= BIT6;
 
     EUSCI_A0->rCTLW0.b.bSWRST = 1; // Reset USCI_A0.
     // Configure ports.
@@ -52,11 +51,4 @@ void main(void)
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
     }
-
-//    while(1)
-//    {
-//        DIO->rPAOUT.b.bP1OUT ^= BIT0;   // Toggle P1.0
-//        DIO->rPBOUT.b.bP3OUT ^= BIT6;
-//        for(i=1000; i>0; i--);         // Delay
-//    }
 }
