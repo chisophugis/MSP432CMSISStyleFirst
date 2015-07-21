@@ -6,38 +6,45 @@
 
 #include "msp.h"
 
+// P3.5 - EUSCI_A0 TXD
+// P3.6 - EUSCI_A0 RXD
+void init_port_mappings(void);
+
 // EUSCI_A0 - 115200 baud UART for console
 void init_uart_115200(void);
 // EUSCI_A1 - SPI for talking to CC1101
 
 void main(void)
 {
-    volatile uint32_t i;
-
     WDT_A->rCTL.r = WDTPW | WDTHOLD;    // Stop watchdog timer
 
-    // Map USCI_A0 to outputs.
+    init_port_mappings(); // TODO: Move this stuff into this function.
+    // Map USCI_A0 to ports.
     PMAP->rKEYID = 0x2D52; // Enable writing.
     // 11.2.2
     // PxSEL.y
     PMAP->rP3MAP45 = (PMAP->rP3MAP45 & 0xFF) | (PM_UCA0TXD << 8); // Ugly. Should use an array of bytes instead.
-    DIO->rPBSEL0.b.bP3SEL0 = BIT5;
-    // TODO: Map the RX port. (will need interrupts for sane "select"?)
+    DIO->rPBSEL0.b.bP3SEL0 |= BIT5;
+    PMAP->rP3MAP67 = (PMAP->rP3MAP67 & 0xFF00) | PM_UCA0RXD;
+    DIO->rPBSEL0.b.bP3SEL0 |= BIT6;
 
     init_uart_115200();
 
-    static uint8_t msg[] = {0x55, 0xAA, 0x55, 0xAA};
+    uint8_t buf;
     for (;;) {
-    	++i;
-    	i &= 3;
-    	// This also clears TXIFG automatically.
-    	EUSCI_A0->rTXBUF.b.bTXBUF = msg[i];
-    	volatile int delay;
-    	for (delay = 0; delay < 1000; delay++) // How on earth is this delaying 6.6ms?
+    	while (EUSCI_A0->rIFG.b.bRXIFG != 1)
     		continue;
+    	buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
+    	EUSCI_A0->rTXBUF.b.bTXBUF = buf; // This clears TXIFG automatically.
     }
+}
+
+void init_port_mappings(void)
+{
+
 }
 
 void init_uart_115200(void)
