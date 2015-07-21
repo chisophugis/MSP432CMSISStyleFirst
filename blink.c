@@ -18,15 +18,7 @@ void main(void)
 {
     WDT_A->rCTL.r = WDTPW | WDTHOLD;    // Stop watchdog timer
 
-    init_port_mappings(); // TODO: Move this stuff into this function.
-    // Map USCI_A0 to ports.
-    PMAP->rKEYID = 0x2D52; // Enable writing.
-    // 11.2.2
-    // PxSEL.y
-    PMAP->rP3MAP45 = (PMAP->rP3MAP45 & 0xFF) | (PM_UCA0TXD << 8); // Ugly. Should use an array of bytes instead.
-    DIO->rPBSEL0.b.bP3SEL0 |= BIT5;
-    PMAP->rP3MAP67 = (PMAP->rP3MAP67 & 0xFF00) | PM_UCA0RXD;
-    DIO->rPBSEL0.b.bP3SEL0 |= BIT6;
+    init_port_mappings();
 
     init_uart_115200();
 
@@ -44,7 +36,14 @@ void main(void)
 
 void init_port_mappings(void)
 {
-
+    // Map USCI_A0 to ports.
+    PMAP->rKEYID = 0x2D52; // Enable writing.
+    // 11.2.2
+    // PxSEL.y
+    PMAP->rP3MAP45 = (PMAP->rP3MAP45 & 0xFF) | (PM_UCA0TXD << 8); // Ugly. Should use an array of bytes instead.
+    DIO->rPBSEL0.b.bP3SEL0 |= BIT5;
+    PMAP->rP3MAP67 = (PMAP->rP3MAP67 & 0xFF00) | PM_UCA0RXD;
+    DIO->rPBSEL0.b.bP3SEL0 |= BIT6;
 }
 
 void init_uart_115200(void)
