@@ -22,11 +22,25 @@ void main(void)
 
     init_uart_115200();
 
+    SysTick->CTRL = 0; // Disable.
+    SysTick->LOAD = 0x00FFFFFF; // Max. (2^24-1).
+    SysTick->VAL = 0;
+
+
     uint8_t buf;
     for (;;) {
     	while (EUSCI_A0->rIFG.b.bRXIFG != 1)
     		continue;
     	buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+
+    	// Reload with 3 million (minus one). With 3MHz clock this gives 1 second period.
+    	SysTick->LOAD = 3 * 1000 * 1000 - 1;
+    	SysTick->VAL = 0;
+    	// Use bus clock. Enable.
+    	SysTick->CTRL = (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk);
+    	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+    		continue;
+    	SysTick->CTRL = 0; // Disable.
 
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
