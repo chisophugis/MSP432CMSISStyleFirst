@@ -14,6 +14,8 @@ void init_port_mappings(void);
 void init_uart_115200(void);
 // EUSCI_A1 - SPI for talking to CC1101
 
+void systick_wait(uint32_t nticks);
+
 void main(void)
 {
     WDT_A->rCTL.r = WDTPW | WDTHOLD;    // Stop watchdog timer
@@ -22,25 +24,13 @@ void main(void)
 
     init_uart_115200();
 
-    SysTick->CTRL = 0; // Disable.
-    SysTick->LOAD = 0x00FFFFFF; // Max. (2^24-1).
-    SysTick->VAL = 0;
-
-
     uint8_t buf;
     for (;;) {
     	while (EUSCI_A0->rIFG.b.bRXIFG != 1)
     		continue;
     	buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
 
-    	// Reload with 3 million (minus one). With 3MHz clock this gives 1 second period.
-    	SysTick->LOAD = 3 * 1000 * 1000 - 1;
-    	SysTick->VAL = 0;
-    	// Use bus clock. Enable.
-    	SysTick->CTRL = (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk);
-    	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
-    		continue;
-    	SysTick->CTRL = 0; // Disable.
+    	systick_wait(3 * 1000 * 1000);
 
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
@@ -78,4 +68,15 @@ void init_uart_115200(void)
     // ultimately: "Enable interrupts (optional) via UCRXIE or UCTXIE." - but busy loop for now.
 
     EUSCI_A0->rCTLW0.b.bSWRST = 0; // Bring USCI_A0 out of reset.
+}
+
+void systick_wait(uint32_t nticks)
+{
+	SysTick->LOAD = nticks - 1; // It counts [loaded value,...,1,0].
+	SysTick->VAL = 0;
+	// Use bus clock. Enable.
+	SysTick->CTRL = (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk);
+	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+		continue;
+	SysTick->CTRL = 0; // Disable.
 }
