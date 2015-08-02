@@ -52,14 +52,13 @@ void init_uart_115200(void)
 	// P3.5 - EUSCI_A0 TXD
 	// P3.6 - EUSCI_A0 RXD
     PMAP->rKEYID = 0x2D52; // Enable writing.
-    // 11.2.2
-    // PxSEL.y
-    PMAP->rP3MAP45 = (PMAP->rP3MAP45 & 0xFF) | (PM_UCA0TXD << 8); // Ugly. Should use an array of bytes instead.
-    DIO->rPBSEL0.b.bP3SEL0 |= BIT5;
-    PMAP->rP3MAP67 = (PMAP->rP3MAP67 & 0xFF00) | PM_UCA0RXD;
-    DIO->rPBSEL0.b.bP3SEL0 |= BIT6;
+    // 11.2.2; PxSEL.y
+    volatile uint8_t *p3 = (volatile uint8_t *)&PMAP->rP3MAP01;
+    p3[5] = PM_UCA0TXD;
+    p3[6] = PM_UCA0RXD;
+    DIO->rPBSEL0.b.bP3SEL0 |= (BIT5 | BIT6);
 
-
+    // Configure.
     EUSCI_A0->rCTLW0.b.bSWRST = 1; // Reset USCI_A0.
 
     // Use SMCLK, 3MHz out of the box according to http://www.ti.com/lit/ug/slau597/slau597.pdf sec. 2.6
@@ -71,7 +70,7 @@ void init_uart_115200(void)
     EUSCI_A0->rMCTLW.b.bBRS = 0x00; // Table 22-4
 
     // Clock source selection.
-    EUSCI_A0->rCTLW0.b.bSSEL = 2;
+    EUSCI_A0->rCTLW0.b.bSSEL = 2; // SMCLK
 
     // ultimately: "Enable interrupts (optional) via UCRXIE or UCTXIE." - but busy loop for now.
 
@@ -81,11 +80,11 @@ void init_uart_115200(void)
 void init_cc1101_spi(void)
 {
 	// Map ports.
-	PMAP->rKEYID = 0x2D52; // Enable writing.
 	// P2.5 - EUSCI_A1 CLK
 	// P2.6 - EUSCI_A1 SIMO
 	// P2.7 - EUSCI_A1 MISO
-	volatile uint8_t *p2 = (uint8_t *)&PMAP->rP2MAP01;
+	PMAP->rKEYID = 0x2D52; // Enable writing.
+	volatile uint8_t *p2 = (volatile uint8_t *)&PMAP->rP2MAP01;
 	p2[5] = PM_UCA1CLK;
 	p2[6] = PM_UCA1SIMO;
 	p2[7] = PM_UCA1SOMI;
