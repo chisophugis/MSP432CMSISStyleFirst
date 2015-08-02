@@ -6,9 +6,6 @@
 
 #include "msp.h"
 
-// P3.5 - EUSCI_A0 TXD
-// P3.6 - EUSCI_A0 RXD
-void init_port_mappings(void);
 
 // EUSCI_A0 - 115200 baud UART for console
 void init_uart_115200(void);
@@ -17,11 +14,10 @@ void init_cc1101_spi(void);
 
 void systick_wait(uint32_t nticks);
 
+
 void main(void)
 {
     WDT_A->rCTL.r = WDTPW | WDTHOLD;    // Stop watchdog timer
-
-    init_port_mappings();
 
     init_uart_115200();
 
@@ -50,9 +46,11 @@ void main(void)
     }
 }
 
-void init_port_mappings(void)
+void init_uart_115200(void)
 {
-    // Map USCI_A0 to ports.
+	// Map ports.
+	// P3.5 - EUSCI_A0 TXD
+	// P3.6 - EUSCI_A0 RXD
     PMAP->rKEYID = 0x2D52; // Enable writing.
     // 11.2.2
     // PxSEL.y
@@ -60,10 +58,8 @@ void init_port_mappings(void)
     DIO->rPBSEL0.b.bP3SEL0 |= BIT5;
     PMAP->rP3MAP67 = (PMAP->rP3MAP67 & 0xFF00) | PM_UCA0RXD;
     DIO->rPBSEL0.b.bP3SEL0 |= BIT6;
-}
 
-void init_uart_115200(void)
-{
+
     EUSCI_A0->rCTLW0.b.bSWRST = 1; // Reset USCI_A0.
 
     // Use SMCLK, 3MHz out of the box according to http://www.ti.com/lit/ug/slau597/slau597.pdf sec. 2.6
@@ -85,11 +81,10 @@ void init_uart_115200(void)
 void init_cc1101_spi(void)
 {
 	// Map ports.
-	// TODO: Move UART port mappings inside init_uart_115200?
-	PMAP->rKEYID = 0x2D52; // Enable writing. Needed again?
-	// P2.5 - CLK
-	// P2.6 - SIMO
-	// P2.7 - MISO
+	PMAP->rKEYID = 0x2D52; // Enable writing.
+	// P2.5 - EUSCI_A1 CLK
+	// P2.6 - EUSCI_A1 SIMO
+	// P2.7 - EUSCI_A1 MISO
 	volatile uint8_t *p2 = (uint8_t *)&PMAP->rP2MAP01;
 	p2[5] = PM_UCA1CLK;
 	p2[6] = PM_UCA1SIMO;
