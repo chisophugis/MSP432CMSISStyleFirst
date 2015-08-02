@@ -23,6 +23,10 @@ void main(void)
 
     init_cc1101_spi();
 
+    // P5.6 - CC1101 CSn
+    // P5.7 - CC1101 GDO2 (defaults to CHIP_RDYn)
+    // P6.6 - CC1101 GDO1 (defaults to CLK_XOSC/192)
+
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;
     for (;;) {
