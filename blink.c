@@ -4,13 +4,13 @@
 //
 //****************************************************************************
 
+#include "cc1101.h"
+
 #include "msp.h"
 
 
 // EUSCI_A0 - 115200 baud UART for console
 void init_uart_115200(void);
-// EUSCI_A1 - SPI for talking to CC1101
-void init_cc1101_spi(void);
 
 void systick_wait(uint32_t nticks);
 
@@ -21,11 +21,7 @@ void main(void)
 
     init_uart_115200();
 
-    init_cc1101_spi();
-
-    // P5.6 - CC1101 CSn
-    // P5.7 - CC1101 GDO2 (defaults to CHIP_RDYn)
-    // P6.6 - CC1101 GDO1 (defaults to CLK_XOSC/192)
+    cc1101_init();
 
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;
@@ -34,13 +30,8 @@ void main(void)
     		continue;
     	uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
 
-    	while (EUSCI_A1->rIFG.a.bTXIFG != 1)
-    		continue;
-    	EUSCI_A1->rTXBUF.a.bTXBUF = uart_to_spi_buf; // This clears TXIFG automatically.
-
-    	while (EUSCI_A1->rIFG.a.bRXIFG != 1)
-    		continue;
-    	spi_to_uart_buf = EUSCI_A1->rRXBUF.a.bRXBUF; // This clears RXIFG automatically.
+    	// Right now this is just connected as a loopback for testing.
+    	spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
 
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
@@ -79,34 +70,6 @@ void init_uart_115200(void)
     // ultimately: "Enable interrupts (optional) via UCRXIE or UCTXIE." - but busy loop for now.
 
     EUSCI_A0->rCTLW0.b.bSWRST = 0; // Bring USCI_A0 out of reset.
-}
-
-void init_cc1101_spi(void)
-{
-	// Map ports.
-	// P2.5 - EUSCI_A1 CLK
-	// P2.6 - EUSCI_A1 SIMO
-	// P2.7 - EUSCI_A1 MISO
-	PMAP->rKEYID = 0x2D52; // Enable writing.
-	volatile uint8_t *p2 = (volatile uint8_t *)&PMAP->rP2MAP01;
-	p2[5] = PM_UCA1CLK;
-	p2[6] = PM_UCA1SIMO;
-	p2[7] = PM_UCA1SOMI;
-	DIO->rPASEL0.b.bP2SEL0 |= (BIT5 | BIT6 | BIT7);
-
-	// Configure.
-	EUSCI_A1->rCTLW0.a.bSWRST = 1; // Bring into reset.
-
-	EUSCI_A1->rCTLW0.a.bSYNC = 1; // SPI mode (synchronous).
-	EUSCI_A1->rCTLW0.a.bMST = 1; // Master mode.
-	EUSCI_A1->rCTLW0.a.bCKPH = 1; // Data latches on positive edge.
-	EUSCI_A1->rCTLW0.a.bCKPL = 0; // Inactive state is low.
-	EUSCI_A1->rCTLW0.a.bMSB = 1; // MSB first.
-	EUSCI_A1->rCTLW0.a.bSSEL = 2; // SMCLK
-	EUSCI_A1->rBRW = 100; // SMCLK divider.
-
-	EUSCI_A1->rCTLW0.a.bSWRST = 0; // Bring out of reset.
-
 }
 
 void systick_wait(uint32_t nticks)
