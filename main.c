@@ -17,32 +17,32 @@ void main(void)
 
     cc1101_init();
 
-	cc1101_begin_transaction();
-	cc1101_shift_byte(0x30); // SRES command strobe. Resets the chip.
-	cc1101_end_transaction();
+    cc1101_begin_transaction();
+    cc1101_shift_byte(0x30); // SRES command strobe. Resets the chip.
+    cc1101_end_transaction();
 
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;
     for (;;) {
-    	while (EUSCI_A0->rIFG.b.bRXIFG != 1)
-    		continue;
-    	uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+        while (EUSCI_A0->rIFG.b.bRXIFG != 1)
+            continue;
+        uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
 
-    	cc1101_begin_transaction();
-    	spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
-    	cc1101_end_transaction();
+        cc1101_begin_transaction();
+        spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
+        cc1101_end_transaction();
 
-    	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
-    		continue;
-    	EUSCI_A0->rTXBUF.b.bTXBUF = spi_to_uart_buf; // This clears TXIFG automatically.
+        while (EUSCI_A0->rIFG.b.bTXIFG != 1)
+            continue;
+        EUSCI_A0->rTXBUF.b.bTXBUF = spi_to_uart_buf; // This clears TXIFG automatically.
     }
 }
 
 void init_uart_115200(void)
 {
-	// Map ports.
-	// P3.5 - EUSCI_A0 TXD
-	// P3.6 - EUSCI_A0 RXD
+    // Map ports.
+    // P3.5 - EUSCI_A0 TXD
+    // P3.6 - EUSCI_A0 RXD
     PMAP->rKEYID = 0x2D52; // Enable writing.
     // 11.2.2; PxSEL.y
     volatile uint8_t *p3 = (volatile uint8_t *)&PMAP->rP3MAP01;
@@ -71,11 +71,11 @@ void init_uart_115200(void)
 
 void systick_wait(uint32_t nticks)
 {
-	SysTick->LOAD = nticks - 1; // It counts [loaded value,...,1,0].
-	SysTick->VAL = 0;
-	// Use bus clock. Enable.
-	SysTick->CTRL = (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk);
-	while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
-		continue;
-	SysTick->CTRL = 0; // Disable.
+    SysTick->LOAD = nticks - 1; // It counts [loaded value,...,1,0].
+    SysTick->VAL = 0;
+    // Use bus clock. Enable.
+    SysTick->CTRL = (SysTick_CTRL_CLKSOURCE_Msk | SysTick_CTRL_ENABLE_Msk);
+    while (!(SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk))
+        continue;
+    SysTick->CTRL = 0; // Disable.
 }
