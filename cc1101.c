@@ -32,10 +32,15 @@ void cc1101_init(void)
 
 	EUSCI_A1->rCTLW0.a.bSWRST = 0; // Bring out of reset.
 
-	// TODO:
 	// P5.6 - GPIO - CC1101 CSn
+	DIO->rPCDIR.b.bP5DIR |= BIT6; // Configure as output.
+	DIO->rPCOUT.b.bP5OUT |= BIT6; // Deassert CSn.
+
 	// P5.7 - GPIO - CC1101 GDO2 (defaults to CHIP_RDYn)
+	DIO->rPCDIR.b.bP5DIR &= ~BIT7; // Configure as input.
+
 	// P6.6 - GPIO - CC1101 GDO1 (defaults to CLK_XOSC/192)
+	// TODO: Use GDO1?
 }
 
 uint8_t cc1101_shift_byte(uint8_t b)
@@ -47,4 +52,16 @@ uint8_t cc1101_shift_byte(uint8_t b)
    		continue;
    	uint8_t ret = EUSCI_A1->rRXBUF.a.bRXBUF;
    	return ret;
+}
+
+void cc1101_begin_transaction(void)
+{
+	DIO->rPCOUT.b.bP5OUT &= ~BIT6; // Assert CSn.
+	while ((DIO->rPCIN.b.bP5IN & BIT6) == BIT6) // Wait for CHIP_RDYn to be asserted.
+		continue;
+}
+
+void cc1101_end_transaction(void)
+{
+	DIO->rPCOUT.b.bP5OUT |= BIT6; // Deassert CSn.
 }

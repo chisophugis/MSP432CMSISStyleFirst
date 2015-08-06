@@ -17,6 +17,10 @@ void main(void)
 
     cc1101_init();
 
+	cc1101_begin_transaction();
+	cc1101_shift_byte(0x30); // SRES command strobe. Resets the chip.
+	cc1101_end_transaction();
+
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;
     for (;;) {
@@ -24,14 +28,13 @@ void main(void)
     		continue;
     	uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
 
-    	// Right now this is just connected as a loopback for testing.
+    	cc1101_begin_transaction();
     	spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
+    	cc1101_end_transaction();
 
     	while (EUSCI_A0->rIFG.b.bTXIFG != 1)
     		continue;
     	EUSCI_A0->rTXBUF.b.bTXBUF = spi_to_uart_buf; // This clears TXIFG automatically.
-
-    	systick_wait(3 * 1000);
     }
 }
 
