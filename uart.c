@@ -19,6 +19,12 @@ void uart_init(void)
     p3[5] = PM_UCA0TXD;
     p3[6] = PM_UCA0RXD;
     DIO->rPBSEL0.b.bP3SEL0 |= (BIT5 | BIT6);
+    // Or can use the "backchannel UART" on the LaunchPad.
+    // P1.2 - EUSCI_A0 RXD
+    // P1.3 - EUSCI_A0 TXD
+    // See the schematics in the UG and the device specific datasheet for the default assignment.
+    // The port mapping stuff above overrides this, so remove/disable it if using the backchannel UART.
+    //DIO->rPASEL0.b.bP1SEL0 |= (BIT2 | BIT3);
 
     // Configure.
     EUSCI_A0->rCTLW0.b.bSWRST = 1; // Bring into reset.
