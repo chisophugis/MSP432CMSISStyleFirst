@@ -17,12 +17,12 @@
 // ### CC1101 SPI interface
 // P2.5 - EUSCI_A1 CLK
 // P2.6 - EUSCI_A1 SIMO
-// P2.7 - EUSCI_A1 SOMI
+// P2.7 - EUSCI_A1 SOMI (doubles as GDO1 (defaults to Hi-Z) when CSn is deasserted)
 // P5.6 - GPIO - CC1101 CSn
 //
 // ### Miscellaneous inputs
 // P5.7 - GPIO - CC1101 GDO2 (defaults to CHIP_RDYn)
-// P6.6 - GPIO - CC1101 GDO1 (defaults to CLK_XOSC/192)
+// P6.6 - GPIO - CC1101 GDO0 (defaults to CLK_XOSC/192)
 
 // Initialize the CC1101 HAL.
 void cc1101_init(void);
