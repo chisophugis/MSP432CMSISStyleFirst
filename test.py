@@ -4,8 +4,9 @@ import time
 
 def main():
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
-    test_d9e7c978(ser)
-    print('ALL TESTS PASSED')
+    repeatedly_send(ser)
+    #test_d9e7c978(ser)
+    #print('ALL TESTS PASSED')
 
 def test_d9e7c978(ser):
     # Derived from commit message of d9e7c978
@@ -30,5 +31,13 @@ def test_d9e7c978(ser):
     # Chip status byte = IDLE state, 0 bytes available in RX FIFO
     assert ord(b) == 0x00
 
+def repeatedly_send(ser):
+    i = 0
+    while True:
+        ser.write('\x3D')
+        b = ser.read()
+        print(i, '(byte = {:02X})'.format(ord(b)))
+        time.sleep(.3)
+        i += 1
 
 main()

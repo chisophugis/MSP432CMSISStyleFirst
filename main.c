@@ -10,6 +10,7 @@
 // [UG]  MSP‑EXP432P401R User's Guide                 - <http://www.ti.com/lit/pdf/slau597>
 
 void systick_wait(uint32_t nticks);
+void systick_wait_us(uint32_t us);
 
 
 // Just the registers that differ from the defaults.
@@ -66,10 +67,21 @@ void main(void)
 
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;
+    uint8_t iters = 0;
     for (;;) {
         while (EUSCI_A0->rIFG.b.bRXIFG != 1)
             continue;
         uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+
+        const int kPacketLen = 10;
+        cc1101_write_reg(CC1101_REG_TXFIFO, kPacketLen);
+        ++iters;
+        iters &= ((1 << 4) - 1);
+        for (i = 0; i < kPacketLen; i++)
+            cc1101_write_reg(CC1101_REG_TXFIFO, ~iters);
+        cc1101_strobe(CC1101_STROBE_STX);
+        // XXX: detect end of transmission. Configure GDO0_CFG to 0x06? (non-default)
+        systick_wait_us(100 * 1000);
 
         spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
 
@@ -77,6 +89,12 @@ void main(void)
             continue;
         EUSCI_A0->rTXBUF.b.bTXBUF = spi_to_uart_buf; // This clears TXIFG automatically.
     }
+}
+
+void systick_wait_us(uint32_t us)
+{
+    // 3 MHz clock rate.
+    systick_wait(us * 3);
 }
 
 void systick_wait(uint32_t nticks)

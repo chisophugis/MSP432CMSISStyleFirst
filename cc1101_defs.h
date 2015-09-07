@@ -57,7 +57,31 @@ enum {
     CC1101_REG_AGCTEST        = 0x2B,      // AGC Test
     CC1101_REG_TEST2          = 0x2C,      // Various Test Settings
     CC1101_REG_TEST1          = 0x2D,      // Various Test Settings
-    CC1101_REG_TEST0          = 0x2E       // Various Test Settings
+    CC1101_REG_TEST0          = 0x2E,      // Various Test Settings
+
+    // Status registers (read-only)
+    // Since these are aliased to command strobes, must set burst bit
+    // to access them (but this does not do a burst access; it just
+    // disambiguates).
+    CC1101_REG_PARTNUM        = 0x30,
+    CC1101_REG_VERSION        = 0x31,
+    CC1101_REG_FREQEST        = 0x32,
+    CC1101_REG_LQI            = 0x33,
+    CC1101_REG_RSSI           = 0x34,
+    CC1101_REG_MARCSTATE      = 0x35,
+    CC1101_REG_WORTIME1       = 0x36,
+    CC1101_REG_WORTIME0       = 0x37,
+    CC1101_REG_PKTSTATUS      = 0x38,
+    CC1101_REG_VCO_VC_DAC     = 0x39,
+    CC1101_REG_TXBYTES        = 0x3A,
+    CC1101_REG_RXBYTES        = 0x3B,
+    CC1101_REG_RCCTRL1_STATUS = 0x3C,
+    CC1101_REG_RCCTRL0_STATUS = 0x3D,
+
+    // Multi-byte registers.
+    CC1101_REG_PATABLE        = 0x3E,
+    CC1101_REG_TXFIFO         = 0x3F,
+    CC1101_REG_RXFIFO         = 0x3F       // Disambiguated from TXFIFO depending on R/W.
 };
 
 // CC1101 command strobes.
