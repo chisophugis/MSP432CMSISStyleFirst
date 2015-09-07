@@ -19,7 +19,7 @@ void main(void)
     uart_init();
     cc1101_init();
 
-    cc1101_shift_byte(0x30); // SRES command strobe. Resets the chip.
+    cc1101_strobe(CC1101_STROBE_SRES); // Reset the CC1101 (TODO: do this in cc1101_init?).
 
     uint8_t uart_to_spi_buf;
     uint8_t spi_to_uart_buf;

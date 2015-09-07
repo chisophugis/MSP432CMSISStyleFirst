@@ -8,6 +8,8 @@
 #ifndef CC1101_H_
 #define CC1101_H_
 
+#include "cc1101_defs.h"
+
 #include <stdint.h>
 
 // # CC1101 HAL
@@ -33,5 +35,7 @@ void cc1101_init(void);
 // b: Byte to shift out.
 // return: Byte shifted in while `b` was shifted out (may be garbage).
 uint8_t cc1101_shift_byte(uint8_t b);
+
+void cc1101_strobe(uint8_t strobe);
 
 #endif /* CC1101_H_ */

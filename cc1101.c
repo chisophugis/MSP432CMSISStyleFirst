@@ -59,6 +59,13 @@ uint8_t cc1101_shift_byte(uint8_t b)
     return ret;
 }
 
+void cc1101_strobe(uint8_t strobe)
+{
+    cc1101_begin_transaction();
+    (void)cc1101_raw_shift_byte(strobe);
+    cc1101_end_transaction();
+}
+
 static void cc1101_begin_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT &= ~BIT6; // Assert CSn.
