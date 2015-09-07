@@ -24,7 +24,7 @@ struct register_setting {
 };
 static const struct register_setting preferred_settings[] =
 {
-    {CC1101_REG_IOCFG0,      0x06},
+    {CC1101_REG_IOCFG0,      0x06}, // Required by CC1101 HAL.
     {CC1101_REG_FIFOTHR,     0x47},
     {CC1101_REG_PKTCTRL0,    0x05},
     {CC1101_REG_FSCTRL1,     0x06},
@@ -80,8 +80,10 @@ void main(void)
         for (i = 0; i < kPacketLen; i++)
             cc1101_write_reg(CC1101_REG_TXFIFO, ~iters);
         cc1101_strobe(CC1101_STROBE_STX);
-        // XXX: detect end of transmission. Configure GDO0_CFG to 0x06? (non-default)
-        systick_wait_us(100 * 1000);
+        while (!GDO0_PIN)
+            continue;
+        while (GDO0_PIN)
+            continue;
 
         spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
 

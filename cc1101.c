@@ -48,7 +48,7 @@ void cc1101_init(void)
     DIO->rPCDIR.b.bP5DIR &= ~BIT7; // Configure as input.
 
     // P6.6 - GPIO - CC1101 GDO0 (defaults to CLK_XOSC/192)
-    // TODO: Use GDO0?
+    DIO->rPCDIR.b.bP6DIR &= ~BIT6; // Configure as input.
 }
 
 uint8_t cc1101_shift_byte(uint8_t b)

@@ -4,9 +4,9 @@ import time
 
 def main():
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
+    test_d9e7c978(ser)
+    print('ALL TESTS PASSED')
     repeatedly_send(ser)
-    #test_d9e7c978(ser)
-    #print('ALL TESTS PASSED')
 
 def test_d9e7c978(ser):
     # Derived from commit message of d9e7c978

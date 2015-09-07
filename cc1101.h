@@ -10,6 +10,7 @@
 
 #include "cc1101_defs.h"
 
+#include "msp.h"
 #include <stdint.h>
 
 // # CC1101 HAL
@@ -25,6 +26,13 @@
 // ### Miscellaneous inputs
 // P5.7 - GPIO - CC1101 GDO2 (defaults to CHIP_RDYn)
 // P6.6 - GPIO - CC1101 GDO0 (defaults to CLK_XOSC/192)
+//
+// ## Requirements
+// GDO0 must be configured as if by the following statement:
+//     // 0x06 = Asserts when sync word sent/received, de-asserts at end of packet.
+//     cc1101_write_reg(CC1101_REG_IOCFG0, 0x06);
+// TODO: does it make more sense to simply make this call in cc1101_init, and then
+// document "don't touch CC1101_REG_IOCFG0"?
 
 // Initialize the CC1101 HAL.
 void cc1101_init(void);
@@ -41,5 +49,8 @@ void cc1101_strobe(uint8_t strobe);
 
 // TODO: document
 void cc1101_write_reg(uint8_t addr, uint8_t value);
+
+// TODO: This `GDO0_PIN` thing is awkward.
+#define GDO0_PIN BITBAND_PERI(P6IN, 6)
 
 #endif /* CC1101_H_ */
