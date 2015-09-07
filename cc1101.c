@@ -9,6 +9,11 @@
 
 #include "msp.h"
 
+// Asserts CSn and waits for CHIP_RDYn from the CC1101.
+static void cc1101_begin_transaction(void);
+// Deasserts CSn.
+static void cc1101_end_transaction(void);
+
 void cc1101_init(void)
 {
     // Map ports.
@@ -45,23 +50,27 @@ void cc1101_init(void)
 
 uint8_t cc1101_shift_byte(uint8_t b)
 {
+    cc1101_begin_transaction();
+
     while (EUSCI_A1->rIFG.a.bTXIFG != 1)
         continue;
     EUSCI_A1->rTXBUF.a.bTXBUF = b;
     while (EUSCI_A1->rIFG.a.bRXIFG != 1)
         continue;
     uint8_t ret = EUSCI_A1->rRXBUF.a.bRXBUF;
+
+    cc1101_end_transaction();
     return ret;
 }
 
-void cc1101_begin_transaction(void)
+static void cc1101_begin_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT &= ~BIT6; // Assert CSn.
     while ((DIO->rPCIN.b.bP5IN & BIT6) == BIT6) // Wait for CHIP_RDYn to be asserted.
         continue;
 }
 
-void cc1101_end_transaction(void)
+static void cc1101_end_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT |= BIT6; // Deassert CSn.
 }

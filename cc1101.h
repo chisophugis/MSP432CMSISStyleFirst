@@ -34,10 +34,4 @@ void cc1101_init(void);
 // return: Byte shifted in while `b` was shifted out (may be garbage).
 uint8_t cc1101_shift_byte(uint8_t b);
 
-// Asserts CSn and waits for CHIP_RDYn from the CC1101.
-void cc1101_begin_transaction(void);
-
-// Deasserts CSn.
-void cc1101_end_transaction(void);
-
 #endif /* CC1101_H_ */
