@@ -36,6 +36,10 @@ void cc1101_init(void);
 // return: Byte shifted in while `b` was shifted out (may be garbage).
 uint8_t cc1101_shift_byte(uint8_t b);
 
+// TODO: document
 void cc1101_strobe(uint8_t strobe);
+
+// TODO: document
+void cc1101_write_reg(uint8_t addr, uint8_t value);
 
 #endif /* CC1101_H_ */

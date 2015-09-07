@@ -66,6 +66,14 @@ void cc1101_strobe(uint8_t strobe)
     cc1101_end_transaction();
 }
 
+void cc1101_write_reg(uint8_t addr, uint8_t value)
+{
+    cc1101_begin_transaction();
+    (void)cc1101_raw_shift_byte(addr);
+    (void)cc1101_raw_shift_byte(value);
+    cc1101_end_transaction();
+}
+
 static void cc1101_begin_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT &= ~BIT6; // Assert CSn.

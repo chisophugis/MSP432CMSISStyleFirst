@@ -8,6 +8,58 @@
 #ifndef CC1101_DEFS_H_
 #define CC1101_DEFS_H_
 
+// CC1101 configuration register addresses.
+// (read/write; burst access possible)
+enum {
+    CC1101_REG_IOCFG2         = 0x00,      // GDO2 Output Pin Configuration
+    CC1101_REG_IOCFG1         = 0x01,      // GDO1 Output Pin Configuration
+    CC1101_REG_IOCFG0         = 0x02,      // GDO0 Output Pin Configuration
+    CC1101_REG_FIFOTHR        = 0x03,      // RX FIFO and TX FIFO Thresholds
+    CC1101_REG_SYNC1          = 0x04,      // Sync Word, High Byte
+    CC1101_REG_SYNC0          = 0x05,      // Sync Word, Low Byte
+    CC1101_REG_PKTLEN         = 0x06,      // Packet Length
+    CC1101_REG_PKTCTRL1       = 0x07,      // Packet Automation Control
+    CC1101_REG_PKTCTRL0       = 0x08,      // Packet Automation Control
+    CC1101_REG_ADDR           = 0x09,      // Device Address
+    CC1101_REG_CHANNR         = 0x0A,      // Channel Number
+    CC1101_REG_FSCTRL1        = 0x0B,      // Frequency Synthesizer Control
+    CC1101_REG_FSCTRL0        = 0x0C,      // Frequency Synthesizer Control
+    CC1101_REG_FREQ2          = 0x0D,      // Frequency Control Word, High Byte
+    CC1101_REG_FREQ1          = 0x0E,      // Frequency Control Word, Middle Byte
+    CC1101_REG_FREQ0          = 0x0F,      // Frequency Control Word, Low Byte
+    CC1101_REG_MDMCFG4        = 0x10,      // Modem Configuration
+    CC1101_REG_MDMCFG3        = 0x11,      // Modem Configuration
+    CC1101_REG_MDMCFG2        = 0x12,      // Modem Configuration
+    CC1101_REG_MDMCFG1        = 0x13,      // Modem Configuration
+    CC1101_REG_MDMCFG0        = 0x14,      // Modem Configuration
+    CC1101_REG_DEVIATN        = 0x15,      // Modem Deviation Setting
+    CC1101_REG_MCSM2          = 0x16,      // Main Radio Control State Machine Configuration
+    CC1101_REG_MCSM1          = 0x17,      // Main Radio Control State Machine Configuration
+    CC1101_REG_MCSM0          = 0x18,      // Main Radio Control State Machine Configuration
+    CC1101_REG_FOCCFG         = 0x19,      // Frequency Offset Compensation Configuration
+    CC1101_REG_BSCFG          = 0x1A,      // Bit Synchronization Configuration
+    CC1101_REG_AGCCTRL2       = 0x1B,      // AGC Control
+    CC1101_REG_AGCCTRL1       = 0x1C,      // AGC Control
+    CC1101_REG_AGCCTRL0       = 0x1D,      // AGC Control
+    CC1101_REG_WOREVT1        = 0x1E,      // High Byte Event0 Timeout
+    CC1101_REG_WOREVT0        = 0x1F,      // Low Byte Event0 Timeout
+    CC1101_REG_WORCTRL        = 0x20,      // Wake On Radio Control
+    CC1101_REG_FREND1         = 0x21,      // Front End RX Configuration
+    CC1101_REG_FREND0         = 0x22,      // Front End TX Configuration
+    CC1101_REG_FSCAL3         = 0x23,      // Frequency Synthesizer Calibration
+    CC1101_REG_FSCAL2         = 0x24,      // Frequency Synthesizer Calibration
+    CC1101_REG_FSCAL1         = 0x25,      // Frequency Synthesizer Calibration
+    CC1101_REG_FSCAL0         = 0x26,      // Frequency Synthesizer Calibration
+    CC1101_REG_RCCTRL1        = 0x27,      // RC Oscillator Configuration
+    CC1101_REG_RCCTRL0        = 0x28,      // RC Oscillator Configuration
+    CC1101_REG_FSTEST         = 0x29,      // Frequency Synthesizer Calibration Control
+    CC1101_REG_PTEST          = 0x2A,      // Production Test
+    CC1101_REG_AGCTEST        = 0x2B,      // AGC Test
+    CC1101_REG_TEST2          = 0x2C,      // Various Test Settings
+    CC1101_REG_TEST1          = 0x2D,      // Various Test Settings
+    CC1101_REG_TEST0          = 0x2E       // Various Test Settings
+};
+
 // CC1101 command strobes.
 enum {
     CC1101_STROBE_SRES    = 0x30,
