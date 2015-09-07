@@ -13,6 +13,9 @@
 static void cc1101_begin_transaction(void);
 // Deasserts CSn.
 static void cc1101_end_transaction(void);
+// FIXME: Once cc1101_shift_byte is no longer public, migrate the docs to here.
+// Precondition: Must be inside a transaction.
+static uint8_t cc1101_raw_shift_byte(uint8_t b);
 
 void cc1101_init(void)
 {
@@ -51,14 +54,7 @@ void cc1101_init(void)
 uint8_t cc1101_shift_byte(uint8_t b)
 {
     cc1101_begin_transaction();
-
-    while (EUSCI_A1->rIFG.a.bTXIFG != 1)
-        continue;
-    EUSCI_A1->rTXBUF.a.bTXBUF = b;
-    while (EUSCI_A1->rIFG.a.bRXIFG != 1)
-        continue;
-    uint8_t ret = EUSCI_A1->rRXBUF.a.bRXBUF;
-
+    uint8_t ret = cc1101_raw_shift_byte(b);
     cc1101_end_transaction();
     return ret;
 }
@@ -73,4 +69,24 @@ static void cc1101_begin_transaction(void)
 static void cc1101_end_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT |= BIT6; // Deassert CSn.
+}
+
+static uint8_t cc1101_raw_shift_byte(uint8_t b)
+{
+    // Reset RXIFG.
+    // Otherwise, we will end up never waiting for RXIFG below,
+    // causing the RXBUF read below to read a stale value.
+    // To boot, we are relying on the read from RXBUF
+    // to clear RXIFG but since since we are plowing ahead
+    // without waiting for the byte to actually be received,
+    // RXIFG will end up set sometime later once the byte is
+    // shifted in/out, perpetuating the cycle!
+    EUSCI_A1->rIFG.a.bRXIFG = 0;
+
+    while (EUSCI_A1->rIFG.a.bTXIFG != 1)
+        continue;
+    EUSCI_A1->rTXBUF.a.bTXBUF = b;
+    while (EUSCI_A1->rIFG.a.bRXIFG != 1)
+        continue;
+    return EUSCI_A1->rRXBUF.a.bRXBUF;
 }
