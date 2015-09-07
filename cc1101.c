@@ -66,7 +66,7 @@ uint8_t cc1101_shift_byte(uint8_t b)
 static void cc1101_begin_transaction(void)
 {
     DIO->rPCOUT.b.bP5OUT &= ~BIT6; // Assert CSn.
-    while ((DIO->rPCIN.b.bP5IN & BIT6) == BIT6) // Wait for CHIP_RDYn to be asserted.
+    while ((DIO->rPCIN.b.bP5IN & BIT7) == BIT7) // Wait for CHIP_RDYn to be asserted.
         continue;
 }
 
