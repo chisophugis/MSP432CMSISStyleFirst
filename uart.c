@@ -50,8 +50,7 @@ uint8_t uart_recv(void)
 
 void uart_send(uint8_t value)
 {
+    EUSCI_A0->rTXBUF.b.bTXBUF = value;
     while (EUSCI_A0->rIFG.b.bTXIFG != 1)
         continue;
-    EUSCI_A0->rTXBUF.b.bTXBUF = value; // This clears TXIFG automatically.
-    // TODO: do the waiting *afterward*?
 }

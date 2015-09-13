@@ -23,11 +23,11 @@
 void uart_init(void);
 
 // Receive a byte over the UART.
-// Note: this function blocks.
+// Note: this function blocks until a byte arrives.
 uint8_t uart_recv(void);
 
 // Send a byte over the UART.
-// Note: this function blocks.
+// Note: this function blocks until the byte is sent.
 void uart_send(uint8_t value);
 
 #endif /* UART_H_ */
