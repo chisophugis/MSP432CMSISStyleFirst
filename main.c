@@ -69,9 +69,7 @@ void main(void)
     uint8_t spi_to_uart_buf;
     uint8_t iters = 0;
     for (;;) {
-        while (EUSCI_A0->rIFG.b.bRXIFG != 1)
-            continue;
-        uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+        uart_to_spi_buf = uart_recv();
 
         enum { kPacketLen = 10 };
         ++iters;
@@ -82,10 +80,7 @@ void main(void)
         cc1101_send_simple_packet(buf, kPacketLen);
 
         spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
-
-        while (EUSCI_A0->rIFG.b.bTXIFG != 1)
-            continue;
-        EUSCI_A0->rTXBUF.b.bTXBUF = spi_to_uart_buf; // This clears TXIFG automatically.
+        uart_send(spi_to_uart_buf);
     }
 }
 

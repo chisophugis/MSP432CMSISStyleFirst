@@ -40,3 +40,18 @@ void uart_init(void)
 
     EUSCI_A0->rCTLW0.b.bSWRST = 0; // Bring out of reset.
 }
+
+uint8_t uart_recv(void)
+{
+    while (EUSCI_A0->rIFG.b.bRXIFG != 1)
+        continue;
+    return EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
+}
+
+void uart_send(uint8_t value)
+{
+    while (EUSCI_A0->rIFG.b.bTXIFG != 1)
+        continue;
+    EUSCI_A0->rTXBUF.b.bTXBUF = value; // This clears TXIFG automatically.
+    // TODO: do the waiting *afterward*?
+}
