@@ -50,7 +50,11 @@ void cc1101_strobe(uint8_t strobe);
 // TODO: document
 void cc1101_write_reg(uint8_t addr, uint8_t value);
 
-// TODO: This `GDO0_PIN` thing is awkward.
-#define GDO0_PIN BITBAND_PERI(P6IN, 6)
+// TODO: document better
+// Send packet containing `data` with length `len`.
+// The packet length is automatically prepended; it should not be included in `data`.
+// Note: No complex buffering is done, so TXFIFO will overflow
+// if the packet is >63 bytes (64 bytes - 1 for the length).
+void cc1101_send_simple_packet(uint8_t *data, uint32_t len);
 
 #endif /* CC1101_H_ */

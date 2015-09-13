@@ -9,6 +9,9 @@
 
 #include "msp.h"
 
+// TODO: This `GDO0_PIN` thing is awkward.
+#define GDO0_PIN BITBAND_PERI(P6IN, 6)
+
 // Asserts CSn and waits for CHIP_RDYn from the CC1101.
 static void cc1101_begin_transaction(void);
 // Deasserts CSn.
@@ -72,6 +75,19 @@ void cc1101_write_reg(uint8_t addr, uint8_t value)
     (void)cc1101_raw_shift_byte(addr);
     (void)cc1101_raw_shift_byte(value);
     cc1101_end_transaction();
+}
+
+void cc1101_send_simple_packet(uint8_t *data, uint32_t len)
+{
+    cc1101_write_reg(CC1101_REG_TXFIFO, len);
+    int i;
+    for (i = 0; i < len; i++)
+        cc1101_write_reg(CC1101_REG_TXFIFO, data[i]);
+    cc1101_strobe(CC1101_STROBE_STX);
+    while (!GDO0_PIN)
+        continue;
+    while (GDO0_PIN)
+        continue;
 }
 
 static void cc1101_begin_transaction(void)

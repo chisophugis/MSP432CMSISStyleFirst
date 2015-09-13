@@ -73,17 +73,13 @@ void main(void)
             continue;
         uart_to_spi_buf = EUSCI_A0->rRXBUF.b.bRXBUF; // This clears RXIFG automatically.
 
-        const int kPacketLen = 10;
-        cc1101_write_reg(CC1101_REG_TXFIFO, kPacketLen);
+        enum { kPacketLen = 10 };
         ++iters;
         iters &= ((1 << 4) - 1);
+        uint8_t buf[kPacketLen];
         for (i = 0; i < kPacketLen; i++)
-            cc1101_write_reg(CC1101_REG_TXFIFO, ~iters);
-        cc1101_strobe(CC1101_STROBE_STX);
-        while (!GDO0_PIN)
-            continue;
-        while (GDO0_PIN)
-            continue;
+            buf[i] = ~iters;
+        cc1101_send_simple_packet(buf, kPacketLen);
 
         spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
 
