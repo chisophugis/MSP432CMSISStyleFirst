@@ -65,22 +65,34 @@ void main(void)
         cc1101_write_reg(p->addr, p->value);
     }
 
-    uint8_t uart_to_spi_buf;
-    uint8_t spi_to_uart_buf;
-    uint8_t iters = 0;
+    uint8_t packet_index = 0;
     for (;;) {
-        uart_to_spi_buf = uart_recv();
-
-        enum { kPacketLen = 10 };
-        ++iters;
-        iters &= ((1 << 4) - 1);
-        uint8_t buf[kPacketLen];
-        for (i = 0; i < kPacketLen; i++)
-            buf[i] = ~iters;
-        cc1101_send_simple_packet(buf, kPacketLen);
-
-        spi_to_uart_buf = cc1101_shift_byte(uart_to_spi_buf);
-        uart_send(spi_to_uart_buf);
+        // TODO: Switch to line oriented format. Extract commands to separate file(s?).
+        uint8_t cmd = uart_recv();
+        switch (cmd) {
+        case 'e': { // _e_cho a byte back
+            uint8_t b = uart_recv();
+            uart_send(b);
+            break;
+        }
+        case 'r': { // _r_elay byte to CC1101
+            uint8_t b = uart_recv();
+            uint8_t b2 = cc1101_shift_byte(b);
+            uart_send(b2);
+            break;
+        }
+        case 'p': { // send _p_acket
+            enum { kPacketLen = 10 };
+            ++packet_index;
+            packet_index &= ((1 << 4) - 1);
+            uint8_t buf[kPacketLen];
+            for (i = 0; i < kPacketLen; i++)
+                buf[i] = ~packet_index;
+            cc1101_send_simple_packet(buf, kPacketLen);
+            uart_send(packet_index); // Simple ACK for testing purposes. Is there a better thing to send?
+            break;
+        }
+        }
     }
 }
 
