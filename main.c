@@ -92,12 +92,17 @@ void main(void)
             uart_send(packet_index); // Simple ACK for testing purposes. Is there a better thing to send?
             break;
         }
-        case 'f': { // test PLL lock at a particular _f_requency
-            uint8_t f = uart_recv();
-            cc1101_write_reg(CC1101_REG_FREQ2, f);
+        case 'f': { // set _f_requency (and calibrate)
+            uint8_t freq2 = uart_recv();
+            uint8_t freq1 = uart_recv();
+            uint8_t freq0 = uart_recv();
+            cc1101_write_reg(CC1101_REG_FREQ2, freq2);
+            cc1101_write_reg(CC1101_REG_FREQ1, freq1);
+            cc1101_write_reg(CC1101_REG_FREQ0, freq0);
             cc1101_strobe(CC1101_STROBE_SCAL);
-            // See last row in Table 34 of CC1101 datasheet.
+            // See last row in Table 34 of CC1101 datasheet for timing info.
             systick_wait_us(1000);
+            // TODO: Return more calibration registers? That will help understand the behavior better.
             uint8_t fscal1 = cc1101_read_reg(CC1101_REG_FSCAL1);
             uart_send(fscal1);
         }

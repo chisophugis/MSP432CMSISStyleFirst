@@ -7,7 +7,7 @@ def main():
     test_d9e7c978(ser)
     print('ALL TESTS PASSED')
     scan_pll_lock_frequencies(ser)
-    repeatedly_send(ser)
+    #repeatedly_send(ser)
 
 def test_d9e7c978(ser):
     # Derived from commit message of d9e7c978
@@ -34,20 +34,28 @@ def test_d9e7c978(ser):
     # Chip status byte = IDLE state, 0 bytes available in RX FIFO
     assert ord(b) == 0x00
 
-def scan_pll_lock_frequencies(ser):
-    # 'f' is "frequency" command.
-    # Still a bit in the air about precisely what to do with it.
-    # Most likely, want to have it take values for FREQ{2,1,0}
-    # and return all the relevant calibration settings.
+def calculate_freqregs_settings(f_carrier):
+    f_carrier *= 1000. * 1000. # convert to MHz
 
+    f_xosc = 26. * 1000. * 1000. # 26 MHz crystal
+
+    # f_carrier = (f_xosc / 2^16) * FREQ[23:0]
+    freq = int((f_carrier / f_xosc) * 2.**16)
+    freqregs = [(freq & 0xFF0000) >> 16, (freq & 0xFF00) >> 8, freq & 0xFF]
+    return ''.join(chr(x) for x in freqregs)
+
+def scan_pll_lock_frequencies(ser):
+    # 'f' is "set frequency" command.
 
     # Documentation for FREQ[23:22] in the FREQ2 register says:
     # "the FREQ2 register is less than 36 with 26-27 MHz crystal"
-    for i in range(0, 36):
-        msg = 'f' + chr(i)
+
+    for freq in range(10, 1000, 10): # MHz
+        freqstr = calculate_freqregs_settings(freq)
+        msg = 'f' + freqstr
         ser.write(msg)
         b = ser.read(1)
-        print(i, '{:02X}'.format(ord(b)))
+        print(freq, '{:02X}'.format(ord(b)))
         time.sleep(.1)
 
 def repeatedly_send(ser):
