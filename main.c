@@ -92,6 +92,15 @@ void main(void)
             uart_send(packet_index); // Simple ACK for testing purposes. Is there a better thing to send?
             break;
         }
+        case 'f': { // test PLL lock at a particular _f_requency
+            uint8_t f = uart_recv();
+            cc1101_write_reg(CC1101_REG_FREQ2, f);
+            cc1101_strobe(CC1101_STROBE_SCAL);
+            // See last row in Table 34 of CC1101 datasheet.
+            systick_wait_us(1000);
+            uint8_t fscal1 = cc1101_read_reg(CC1101_REG_FSCAL1);
+            uart_send(fscal1);
+        }
         }
     }
 }

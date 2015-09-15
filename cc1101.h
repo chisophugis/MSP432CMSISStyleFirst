@@ -50,6 +50,9 @@ void cc1101_strobe(uint8_t strobe);
 // TODO: document
 void cc1101_write_reg(uint8_t addr, uint8_t value);
 
+// TODO: document
+uint8_t cc1101_read_reg(uint8_t addr);
+
 // TODO: document better
 // Send packet containing `data` with length `len`.
 // The packet length is automatically prepended; it should not be included in `data`.

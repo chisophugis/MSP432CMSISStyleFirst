@@ -6,6 +6,7 @@ def main():
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
     test_d9e7c978(ser)
     print('ALL TESTS PASSED')
+    scan_pll_lock_frequencies(ser)
     repeatedly_send(ser)
 
 def test_d9e7c978(ser):
@@ -32,6 +33,22 @@ def test_d9e7c978(ser):
     print('byte = {:02X}'.format(ord(b)))
     # Chip status byte = IDLE state, 0 bytes available in RX FIFO
     assert ord(b) == 0x00
+
+def scan_pll_lock_frequencies(ser):
+    # 'f' is "frequency" command.
+    # Still a bit in the air about precisely what to do with it.
+    # Most likely, want to have it take values for FREQ{2,1,0}
+    # and return all the relevant calibration settings.
+
+
+    # Documentation for FREQ[23:22] in the FREQ2 register says:
+    # "the FREQ2 register is less than 36 with 26-27 MHz crystal"
+    for i in range(0, 36):
+        msg = 'f' + chr(i)
+        ser.write(msg)
+        b = ser.read(1)
+        print(i, '{:02X}'.format(ord(b)))
+        time.sleep(.1)
 
 def repeatedly_send(ser):
     # 'p' is "packet" command.

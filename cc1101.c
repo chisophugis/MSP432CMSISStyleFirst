@@ -77,6 +77,16 @@ void cc1101_write_reg(uint8_t addr, uint8_t value)
     cc1101_end_transaction();
 }
 
+uint8_t cc1101_read_reg(uint8_t addr)
+{
+    enum { kReadBit = 0x80 };
+    cc1101_begin_transaction();
+    (void)cc1101_raw_shift_byte(addr | kReadBit);
+    uint8_t ret = cc1101_raw_shift_byte(0);
+    cc1101_end_transaction();
+    return ret;
+}
+
 void cc1101_send_simple_packet(uint8_t *data, uint32_t len)
 {
     cc1101_write_reg(CC1101_REG_TXFIFO, len);
