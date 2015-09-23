@@ -16,8 +16,8 @@
 //
 // ## Hardware resources used
 //
-// P3.5 - EUSCI_A0 TXD
-// P3.6 - EUSCI_A0 RXD
+// P1.2 - EUSCI_A0 RXD (`RXD <<` jumper on MSP‑EXP432P401R)
+// P1.3 - EUSCI_A0 TXD (`TXD >>` jumper on MSP‑EXP432P401R)
 
 // Initialize the UART HAL.
 void uart_init(void);

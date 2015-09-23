@@ -11,20 +11,18 @@
 
 void uart_init(void)
 {
-    // Map ports.
-    // P3.5 - EUSCI_A0 TXD
-    // P3.6 - EUSCI_A0 RXD
-    PMAP->rKEYID = 0x2D52; // Enable writing.
-    volatile uint8_t *p3 = (volatile uint8_t *)&PMAP->rP3MAP01;
-    p3[5] = PM_UCA0TXD;
-    p3[6] = PM_UCA0RXD;
-    DIO->rPBSEL0.b.bP3SEL0 |= (BIT5 | BIT6);
-    // Or can use the "backchannel UART" on the LaunchPad.
-    // P1.2 - EUSCI_A0 RXD
-    // P1.3 - EUSCI_A0 TXD
-    // See the schematics in the UG and the device specific datasheet for the default assignment.
-    // The port mapping stuff above overrides this, so remove/disable it if using the backchannel UART.
-    //DIO->rPASEL0.b.bP1SEL0 |= (BIT2 | BIT3);
+    // Use the "backchannel UART" on the LaunchPad.
+    // P1.2 - EUSCI_A0 RXD (`RXD <<` jumper on MSP‑EXP432P401R)
+    // P1.3 - EUSCI_A0 TXD (`TXD >>` jumper on MSP‑EXP432P401R)
+    // See the schematics in MSP‑EXP432P401R UG.
+    // See the DSD for the default assignment.
+    //
+    // Note the issue described here: https://e2e.ti.com/support/microcontrollers/msp430/f/166/p/417262/1494026#1494026
+    // Basically the XDS100-ET's USB-UART bridge is optimized for throughput, so short messages
+    // (like short commands) get +150ms latency tacked on as they wait to be flushed by a timeout in the USB-UART bridge.
+    // This delay also seems to block the sender on the host PC, which is a big issue in its own right.
+    // To avoid this, I'm removing the RXD/TXD jumpers on the MSP‑EXP432P401R and using my own USB-UART bridge.
+    DIO->rPASEL0.b.bP1SEL0 |= (BIT2 | BIT3);
 
     // Configure.
     EUSCI_A0->rCTLW0.b.bSWRST = 1; // Bring into reset.

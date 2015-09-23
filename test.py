@@ -6,8 +6,8 @@ def main():
     ser = serial.Serial('/dev/ttyUSB0', 115200, timeout=1)
     test_d9e7c978(ser)
     print('ALL TESTS PASSED')
-    scan_pll_lock_frequencies(ser)
-    #repeatedly_send(ser)
+    #scan_pll_lock_frequencies(ser)
+    repeatedly_send(ser)
 
 def test_d9e7c978(ser):
     # Derived from commit message of d9e7c978
