@@ -5,9 +5,10 @@
 
 // # Useful documents
 //
-// [DSD] MSP432P401x Device-Specific Datasheet        - <http://www.ti.com/lit/gpn/msp432p401r>
-// [TRM] MSP432P4xx Family Technical Reference Manual - <http://www.ti.com/lit/pdf/slau356>
-// [UG]  MSP‑EXP432P401R User's Guide                 - <http://www.ti.com/lit/pdf/slau597>
+// [DSD]    MSP432P401x Device-Specific Datasheet        - <http://www.ti.com/lit/gpn/msp432p401r>
+// [TRM]    MSP432P4xx Family Technical Reference Manual - <http://www.ti.com/lit/pdf/slau356>
+// [UG]     MSP‑EXP432P401R User's Guide                 - <http://www.ti.com/lit/pdf/slau597>
+// [CC1101] CC1101 Datasheet                             - <http://www.ti.com/lit/gpn/cc1101>
 
 void systick_wait(uint32_t nticks);
 void systick_wait_us(uint32_t us);
